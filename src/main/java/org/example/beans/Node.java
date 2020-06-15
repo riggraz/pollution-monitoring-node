@@ -2,7 +2,7 @@ package org.example.beans;
 
 import java.util.UUID;
 
-public class Node {
+public class Node implements Comparable<Node> {
     private UUID id;
     private String ip;
     private int port;
@@ -36,9 +36,13 @@ public class Node {
     @Override
     public String toString() {
         return "Node{" +
-                "id=" + id +
-                ", ip='" + ip + '\'' +
+                "ip='" + ip + '\'' +
                 ", port=" + port +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Node otherNode) {
+        return this.getId().compareTo(otherNode.getId());
     }
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.example.beans.Node;
 import org.example.beans.NodeList;
+import org.example.networktopology.NetworkTopologyModule;
 import org.example.utils.Constants;
 
 import java.io.IOException;
@@ -30,6 +31,8 @@ public class NodeApp {
 
         getNodeAttributes();
         addNodeToGateway();
+
+        NetworkTopologyModule.launchClientAndServer(node);
     }
 
     private void getNodeAttributes() {
@@ -64,6 +67,8 @@ public class NodeApp {
                     new InputStreamReader((InputStream) connection.getContent()),
                     new TypeToken<ArrayList<Node>>(){}.getType()
             ));
+
+            System.out.println("Received this list from gateway: " + NodeList.getInstance().getList());
         } catch (IOException e) {
             e.printStackTrace();
         }

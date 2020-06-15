@@ -1,6 +1,7 @@
 package org.example.beans;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +23,7 @@ public class NodeList {
     // because ArrayList constructor loops all list elements while
     // other threads may be altering the list
     public synchronized List<Node> getList() {
+        sortList();
         return new ArrayList<Node>(list);
     }
 
@@ -40,5 +42,14 @@ public class NodeList {
                 break;
             }
         }
+    }
+
+    private synchronized void sortList() {
+        list.sort(new Comparator<Node>() {
+            @Override
+            public int compare(Node n1, Node n2) {
+                return n1.compareTo(n2);
+            }
+        });
     }
 }
