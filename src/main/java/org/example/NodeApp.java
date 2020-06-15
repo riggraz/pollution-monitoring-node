@@ -3,6 +3,7 @@ package org.example;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.example.beans.Node;
+import org.example.beans.NodeList;
 import org.example.utils.Constants;
 
 import java.io.IOException;
@@ -18,14 +19,12 @@ import java.util.UUID;
 
 public class NodeApp {
     private Node node;
-    private List<Node> nodeList;
 
     private Scanner in;
     private Gson gson;
 
     public NodeApp() {
         node = new Node();
-        nodeList = new ArrayList<Node>();
         in = new Scanner(System.in);
         gson = new Gson();
 
@@ -61,10 +60,10 @@ public class NodeApp {
                 os.write(input, 0, input.length);
             }
 
-            nodeList = gson.fromJson(
+            NodeList.getInstance().setList(gson.fromJson(
                     new InputStreamReader((InputStream) connection.getContent()),
                     new TypeToken<ArrayList<Node>>(){}.getType()
-            );
+            ));
         } catch (IOException e) {
             e.printStackTrace();
         }
