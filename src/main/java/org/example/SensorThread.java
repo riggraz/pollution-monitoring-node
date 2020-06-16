@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.beans.LocalStatisticList;
 import org.example.simulator.Measurement;
 import org.example.simulator.PM10Simulator;
 import org.example.simulator.Simulator;
@@ -11,12 +12,10 @@ import java.util.List;
 public class SensorThread implements Runnable {
     SlidingWindowBuffer buffer;
     Simulator simulator;
-    List<Measurement> localStatistics;
 
     public SensorThread() {
         buffer = new SlidingWindowBuffer();
         simulator = new PM10Simulator(buffer);
-        localStatistics = new ArrayList<Measurement>();
 
         simulator.start();
     }
@@ -24,8 +23,8 @@ public class SensorThread implements Runnable {
     @Override
     public void run() {
         while (true) {
-            localStatistics.add(buffer.getLocalStatistic());
-            System.out.println("New local statistic: " + localStatistics);
+            LocalStatisticList.getInstance().addMeasurement(buffer.getLocalStatistic());
+            System.out.println("New local statistic: " + LocalStatisticList.getInstance().getList());
         }
     }
 }

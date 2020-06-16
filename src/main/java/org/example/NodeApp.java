@@ -7,6 +7,8 @@ import org.example.beans.NodeList;
 import org.example.beans.ThisNode;
 import org.example.networktopology.NetworkTopologyModule;
 import org.example.networktopology.NetworkTopologyService;
+import org.example.token.TokenModule;
+import org.example.token.TokenService;
 import org.example.utils.Constants;
 
 import java.io.IOException;
@@ -36,6 +38,8 @@ public class NodeApp extends Thread {
         addNodeToGateway();
 
         NetworkTopologyModule.launchServer();
+
+        if (NodeList.getInstance().getList().size() == 1) TokenModule.generateToken();
 
         /*try {
             Thread.sleep(15000);
