@@ -1,15 +1,25 @@
 package org.example.networktopology;
 
-import org.example.beans.Node;
-
 public class NetworkTopologyModule {
-    public static void launchClientAndServer(Node node) {
-        // Start server to listen to incoming messages
-        Thread serverThread = new Thread(new NetworkTopologyServer(node));
-        serverThread.start();
+    private static Thread serverThread;
 
+    public static void launchServer() {
+        // Start server to listen to incoming messages
+        serverThread = new Thread(new NetworkTopologyServer());
+        serverThread.start();
+    }
+
+    public static void stopServer() {
+        serverThread.interrupt();
+    }
+
+    public static void communicateAddNode() {
         // Communicate to all other nodes that this node is entering the network
-        Thread clientThread = new Thread(new NetworkTopologyClient(node));
-        clientThread.start();
+        new Thread(new CommunicateAddNode()).start();
+    }
+
+    public static void communicateDeleteNode() {
+        // Communicate to all other nodes that this node is exiting the network
+        new Thread(new CommunicateDeleteNode()).start();
     }
 }

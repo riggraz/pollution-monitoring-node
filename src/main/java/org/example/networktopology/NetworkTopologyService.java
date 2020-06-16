@@ -3,7 +3,9 @@ package org.example.networktopology;
 import io.grpc.stub.StreamObserver;
 import org.example.beans.Node;
 import org.example.beans.NodeList;
+import org.example.beans.ThisNode;
 import org.example.proto.AddNodeRequest;
+import org.example.proto.DeleteNodeRequest;
 import org.example.proto.NetworkTopologyServiceGrpc;
 import org.example.proto.Response;
 
@@ -23,7 +25,22 @@ public class NetworkTopologyService extends NetworkTopologyServiceGrpc.NetworkTo
 
         Response response = Response
                 .newBuilder()
-                .setSuccess(true)
+                .setCode(ThisNode.getInstance().getIsExiting() ? 1 : 0)
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void deleteNode(DeleteNodeRequest request, StreamObserver<Response> responseObserver) {
+        UUID nodeId = UUID.fromString(request.getId());
+
+        NodeList.getInstance().deleteNode(nodeId);
+        System.out.println("Deleted node from: " + NodeList.getInstance().getList());
+
+        Response response = Response
+                .newBuilder()
+                .setCode(ThisNode.getInstance().getIsExiting() ? 1 : 0)
                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();

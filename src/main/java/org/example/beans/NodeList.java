@@ -32,6 +32,9 @@ public class NodeList {
     }
 
     public synchronized void addNode(Node newNode) {
+        for (Node node : list) {
+            if (node.getId().equals(newNode.getId())) return;
+        }
         list.add(newNode);
     }
 

@@ -12,8 +12,9 @@ message DeleteNodeRequest {
   string id = 1;
 }
 
+// 0: success, -1: failure, 1: node is exiting the network
 message Response {
-  bool success = 1;
+  int32 code = 1;
 }
 
 service NetworkTopologyService {

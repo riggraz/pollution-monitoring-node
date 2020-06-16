@@ -4,6 +4,10 @@
 package org.example.proto;
 
 /**
+ * <pre>
+ * 0: success, -1: failure, 1: node is exiting the network
+ * </pre>
+ *
  * Protobuf type {@code org.example.proto.Response}
  */
 public  final class Response extends
@@ -15,7 +19,7 @@ public  final class Response extends
     super(builder);
   }
   private Response() {
-    success_ = false;
+    code_ = 0;
   }
 
   @java.lang.Override
@@ -45,7 +49,7 @@ public  final class Response extends
           }
           case 8: {
 
-            success_ = input.readBool();
+            code_ = input.readInt32();
             break;
           }
         }
@@ -71,13 +75,13 @@ public  final class Response extends
             org.example.proto.Response.class, org.example.proto.Response.Builder.class);
   }
 
-  public static final int SUCCESS_FIELD_NUMBER = 1;
-  private boolean success_;
+  public static final int CODE_FIELD_NUMBER = 1;
+  private int code_;
   /**
-   * <code>bool success = 1;</code>
+   * <code>int32 code = 1;</code>
    */
-  public boolean getSuccess() {
-    return success_;
+  public int getCode() {
+    return code_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -92,8 +96,8 @@ public  final class Response extends
 
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (success_ != false) {
-      output.writeBool(1, success_);
+    if (code_ != 0) {
+      output.writeInt32(1, code_);
     }
   }
 
@@ -102,9 +106,9 @@ public  final class Response extends
     if (size != -1) return size;
 
     size = 0;
-    if (success_ != false) {
+    if (code_ != 0) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBoolSize(1, success_);
+        .computeInt32Size(1, code_);
     }
     memoizedSize = size;
     return size;
@@ -122,8 +126,8 @@ public  final class Response extends
     org.example.proto.Response other = (org.example.proto.Response) obj;
 
     boolean result = true;
-    result = result && (getSuccess()
-        == other.getSuccess());
+    result = result && (getCode()
+        == other.getCode());
     return result;
   }
 
@@ -134,9 +138,8 @@ public  final class Response extends
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + SUCCESS_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-        getSuccess());
+    hash = (37 * hash) + CODE_FIELD_NUMBER;
+    hash = (53 * hash) + getCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -231,6 +234,10 @@ public  final class Response extends
     return builder;
   }
   /**
+   * <pre>
+   * 0: success, -1: failure, 1: node is exiting the network
+   * </pre>
+   *
    * Protobuf type {@code org.example.proto.Response}
    */
   public static final class Builder extends
@@ -266,7 +273,7 @@ public  final class Response extends
     }
     public Builder clear() {
       super.clear();
-      success_ = false;
+      code_ = 0;
 
       return this;
     }
@@ -290,7 +297,7 @@ public  final class Response extends
 
     public org.example.proto.Response buildPartial() {
       org.example.proto.Response result = new org.example.proto.Response(this);
-      result.success_ = success_;
+      result.code_ = code_;
       onBuilt();
       return result;
     }
@@ -332,8 +339,8 @@ public  final class Response extends
 
     public Builder mergeFrom(org.example.proto.Response other) {
       if (other == org.example.proto.Response.getDefaultInstance()) return this;
-      if (other.getSuccess() != false) {
-        setSuccess(other.getSuccess());
+      if (other.getCode() != 0) {
+        setCode(other.getCode());
       }
       onChanged();
       return this;
@@ -361,28 +368,28 @@ public  final class Response extends
       return this;
     }
 
-    private boolean success_ ;
+    private int code_ ;
     /**
-     * <code>bool success = 1;</code>
+     * <code>int32 code = 1;</code>
      */
-    public boolean getSuccess() {
-      return success_;
+    public int getCode() {
+      return code_;
     }
     /**
-     * <code>bool success = 1;</code>
+     * <code>int32 code = 1;</code>
      */
-    public Builder setSuccess(boolean value) {
+    public Builder setCode(int value) {
       
-      success_ = value;
+      code_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>bool success = 1;</code>
+     * <code>int32 code = 1;</code>
      */
-    public Builder clearSuccess() {
+    public Builder clearCode() {
       
-      success_ = false;
+      code_ = 0;
       onChanged();
       return this;
     }
