@@ -48,6 +48,9 @@ public class NodeApp extends Thread {
         Thread inputReaderThread = new Thread(new InputReaderThread());
         inputReaderThread.start();
 
+        Thread sensorThread = new Thread(new SensorThread());
+        sensorThread.start();
+
         try {
             inputReaderThread.join();
 
