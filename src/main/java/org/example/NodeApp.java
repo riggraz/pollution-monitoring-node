@@ -27,11 +27,13 @@ public class NodeApp extends Thread {
     private Scanner in;
     private Gson gson;
     private boolean isFirstNode;
+    private boolean gatewayPermission;
 
     public NodeApp() {
         in = new Scanner(System.in);
         gson = new Gson();
         isFirstNode = false;
+        gatewayPermission = true;
     }
 
     @Override
@@ -45,6 +47,11 @@ public class NodeApp extends Thread {
 
         // Add node to gateway
         addNodeToGateway();
+
+        if (!gatewayPermission) {
+            grpcServerThread.interrupt();
+            return;
+        }
 
 /*
         // Test for concurrent node add
@@ -98,6 +105,10 @@ public class NodeApp extends Thread {
     private void getNodeAttributes() {
         Node node = new Node();
 
+        /*
+        // Test same id gateway refusal
+        node.setId(UUID.fromString("792229ad-d4bb-45fe-86b6-afa8307622d5"));
+        */
         node.setId(UUID.randomUUID());
         System.out.println("Node id: " + node.getId());
 
@@ -125,6 +136,12 @@ public class NodeApp extends Thread {
             try(OutputStream os = connection.getOutputStream()) {
                 byte[] input = nodeJson.getBytes("utf-8");
                 os.write(input, 0, input.length);
+            }
+
+            if (connection.getResponseCode() == 400) {
+                System.err.println("Cannot add node to gateway. Quitting...");
+                gatewayPermission = false;
+                return;
             }
 
             NodeList.getInstance().setList(gson.fromJson(
