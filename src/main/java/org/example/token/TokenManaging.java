@@ -40,6 +40,8 @@ public class TokenManaging implements Runnable {
 
             // now i need to reset the token
             resetToken();
+
+            return;
         }
 
         if (participantIds.contains(ThisNode.getInstance().getNode().getId().toString())) {

@@ -26,11 +26,13 @@ import java.util.List;
 public class TokenService extends TokenServiceGrpc.TokenServiceImplBase {
     @Override
     public void sendToken(SendTokenRequest request, StreamObserver<SendTokenResponse> responseObserver) {
-        /*try {
+/*
+        try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }*/
+        }
+*/
 
         try {
             // Get data from received token
