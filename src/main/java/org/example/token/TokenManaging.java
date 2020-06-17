@@ -108,11 +108,19 @@ public class TokenManaging implements Runnable {
                     e.printStackTrace();
                 }*/
 
-                SendTokenResponse sendTokenResponse = stub.sendToken(SendTokenRequest
-                        .newBuilder()
-                        .addAllLocalStatistics(measurementList)
-                        .addAllParticipantIds(participantIds)
-                        .build());
+                while (true) {
+                    SendTokenResponse sendTokenResponse = stub.sendToken(SendTokenRequest
+                            .newBuilder()
+                            .addAllLocalStatistics(measurementList)
+                            .addAllParticipantIds(participantIds)
+                            .build());
+
+                    if (sendTokenResponse.getCode() != 0) {
+                        System.err.println("The token receiver has returned a failure. Retrying...");
+                        continue;
+                    }
+                    break;
+                }
 
                 break;
             } catch (io.grpc.StatusRuntimeException e) {

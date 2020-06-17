@@ -32,20 +32,26 @@ public class TokenService extends TokenServiceGrpc.TokenServiceImplBase {
             e.printStackTrace();
         }
 
-        /*System.out.println("Received token");*/
+        try {
+            // Get data from received token
+            List<MeasurementMessage> measurementList = new ArrayList<MeasurementMessage>(request.getLocalStatisticsList());
+            List<String> participantIds = new ArrayList<String>(request.getParticipantIdsList());
 
-        // Get data from received token
-        List<MeasurementMessage> measurementList = new ArrayList<MeasurementMessage>(request.getLocalStatisticsList());
-        List<String> participantIds = new ArrayList<String>(request.getParticipantIdsList());
+            // Launch a new thread to send the token to the next node
+            (new Thread(new TokenManaging(measurementList, participantIds))).start();
 
-        // Launch a new thread to send the token to the next node
-        (new Thread(new TokenManaging(measurementList, participantIds))).start();
-
-        // Respond to previous node
-        responseObserver.onNext(SendTokenResponse.newBuilder()
-                .setCode(0)
-                .build()
-        );
-        responseObserver.onCompleted();
+            // Respond to previous node
+            responseObserver.onNext(SendTokenResponse.newBuilder()
+                    .setCode(0)
+                    .build()
+            );
+        } catch (Exception e) {
+            responseObserver.onNext(SendTokenResponse.newBuilder()
+                    .setCode(-1)
+                    .build()
+            );
+        } finally {
+            responseObserver.onCompleted();
+        }
     }
 }
