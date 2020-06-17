@@ -26,10 +26,12 @@ import java.util.UUID;
 public class NodeApp extends Thread {
     private Scanner in;
     private Gson gson;
+    private boolean isFirstNode;
 
     public NodeApp() {
         in = new Scanner(System.in);
         gson = new Gson();
+        isFirstNode = false;
     }
 
     @Override
@@ -37,24 +39,27 @@ public class NodeApp extends Thread {
         // Read node attributes from stdin
         getNodeAttributes();
 
-        // Add node to gateway
-        addNodeToGateway();
-
         // Run gRPC Server to handle both NetworkTopologyService and TokenService requests
         Thread grpcServerThread = new Thread(new GrpcServerThread());
         grpcServerThread.start();
 
-        /*try {
-            Thread.sleep(15000);
+        // Add node to gateway
+        addNodeToGateway();
+
+        /*
+        // Test for concurrent node add
+        try {
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }*/
+        }
+        */
 
         // Communicate to all other nodes that this node has entered the network
         NetworkTopologyModule.communicateAddNode();
 
         // If this node is the only one, then it must generate the token
-        if (NodeList.getInstance().getList().size() == 1) TokenModule.generateToken();
+        if (isFirstNode) TokenModule.generateToken();
 
         // Run a thread to sense data through simulator
         Thread sensorThread = new Thread(new SensorThread());
@@ -126,6 +131,9 @@ public class NodeApp extends Thread {
             ));
 
             System.out.println("Received this list from gateway: " + NodeList.getInstance().getList());
+
+            // determine whether this is the first node in the network
+            isFirstNode = (NodeList.getInstance().getList().size() == 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
