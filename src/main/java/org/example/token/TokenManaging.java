@@ -37,8 +37,6 @@ public class TokenManaging implements Runnable {
             List<Measurement> localStatistics = LocalStatisticList.getInstance().getList();
 
             if (localStatistics.size() > 0) {
-                System.out.println("Adding local statistic to token");
-
                 // add local statistic to token
                 measurementList.add(
                         MeasurementMessage
@@ -51,14 +49,14 @@ public class TokenManaging implements Runnable {
                 // remove the statistic locally
                 LocalStatisticList.getInstance().deleteOldestMeasurement();
 
+                System.out.println("Added local statistic to token (" + localStatistics.size() + " left in buffer)");
+
                 // remove this node id from participant ids
                 participantIds.remove(ThisNode.getInstance().getNode().getId().toString());
             }
         }
 
         if (participantIds.size() == 0) {
-            System.out.println("Sending token to gateway");
-
             // all statistics are in the token, so we calc a global statistic
             // and send it to the gateway
             Measurement globalStatistic = calculateGlobalStatistic();
@@ -76,7 +74,6 @@ public class TokenManaging implements Runnable {
             forwardToken();
 
         } else {
-            System.out.println("Forwarding the token (ml=" + measurementList + ", part=" + participantIds);
             forwardToken();
         }
 
@@ -128,7 +125,6 @@ public class TokenManaging implements Runnable {
             average += m.getValue();
         }
         average /= measurementList.size();
-
 
         Measurement globalStatistic = new Measurement(
                 "pm10-123",

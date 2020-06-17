@@ -13,17 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TokenModule {
-    private static Thread serverThread;
-
-    public static void launchServer() {
-        serverThread = new Thread(new TokenServer());
-        serverThread.start();
-    }
-
-    public static void stopServer() {
-        serverThread.interrupt();
-    }
-
     public static void generateToken() {
         ManagedChannel channel = ManagedChannelBuilder
             .forAddress(

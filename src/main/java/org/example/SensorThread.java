@@ -1,13 +1,9 @@
 package org.example;
 
 import org.example.beans.LocalStatisticList;
-import org.example.simulator.Measurement;
 import org.example.simulator.PM10Simulator;
 import org.example.simulator.Simulator;
 import org.example.utils.SlidingWindowBuffer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SensorThread implements Runnable {
     SlidingWindowBuffer buffer;
@@ -23,8 +19,16 @@ public class SensorThread implements Runnable {
     @Override
     public void run() {
         while (true) {
-            LocalStatisticList.getInstance().addMeasurement(buffer.getLocalStatistic());
-            System.out.println("New local statistic: " + LocalStatisticList.getInstance().getList());
+            try {
+                LocalStatisticList.getInstance().addMeasurement(buffer.getLocalStatistic());
+                System.out.println("New local statistic (" + LocalStatisticList.getInstance().getList().size() + " in buffer)");
+            } catch (InterruptedException e) {
+                break;
+            }
         }
+
+        System.out.println("Shutting down sensor thread...");
+
+        simulator.stopMeGently();
     }
 }

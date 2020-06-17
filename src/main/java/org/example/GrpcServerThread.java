@@ -1,14 +1,14 @@
-package org.example.networktopology;
+package org.example;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import org.example.beans.Node;
 import org.example.beans.ThisNode;
+import org.example.networktopology.NetworkTopologyService;
 import org.example.token.TokenService;
 
 import java.io.IOException;
 
-public class NetworkTopologyServer implements Runnable {
+public class GrpcServerThread implements Runnable {
     @Override
     public void run() {
         Server server = ServerBuilder
@@ -21,7 +21,7 @@ public class NetworkTopologyServer implements Runnable {
             server.start();
             server.awaitTermination();
         } catch (IOException | InterruptedException e) {
-            System.out.println("Shutting down network topology server...");
+            System.out.println("Shutting down grpc server...");
             server.shutdown();
         }
     }

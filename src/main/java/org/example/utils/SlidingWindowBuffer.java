@@ -21,14 +21,10 @@ public class SlidingWindowBuffer implements Buffer {
         notify();
     }
 
-    public synchronized Measurement getLocalStatistic() {
+    public synchronized Measurement getLocalStatistic() throws InterruptedException {
         // wait for SW_SIZE measurements
         while (buffer.size() < SW_SIZE) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            wait();
         }
 
         // calc the average value of the first SW_SIZE measurements

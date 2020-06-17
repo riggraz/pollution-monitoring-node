@@ -34,11 +34,17 @@ public class NodeApp extends Thread {
 
     @Override
     public void run() {
+        // Read node attributes from stdin
         getNodeAttributes();
+
+        // Add node to gateway
         addNodeToGateway();
 
-        NetworkTopologyModule.launchServer();
+        // Run gRPC Server to handle both NetworkTopologyService and TokenService requests
+        Thread grpcServerThread = new Thread(new GrpcServerThread());
+        grpcServerThread.start();
 
+        // If this node is the only one, then it must generate the token
         if (NodeList.getInstance().getList().size() == 1) TokenModule.generateToken();
 
         /*try {
@@ -47,27 +53,38 @@ public class NodeApp extends Thread {
             e.printStackTrace();
         }*/
 
+        // Communicate to all other nodes that this node has entered the network
         NetworkTopologyModule.communicateAddNode();
 
+        // Run a thread to listen to stdin (used to quit the node)
         Thread inputReaderThread = new Thread(new InputReaderThread());
         inputReaderThread.start();
 
+        // Run a thread to sense data through simulator
         Thread sensorThread = new Thread(new SensorThread());
         sensorThread.start();
 
         try {
+            // Wait for the input thread to finish, then throw down the node
             inputReaderThread.join();
 
             ThisNode.getInstance().setIsExiting(true);
 
             //Thread.sleep(15000);
 
+            // Communicate to all other nodes that this node is leaving the network
             NetworkTopologyModule.communicateDeleteNode();
+
+            // Delete node from gateway
             deleteNodeFromGateway();
 
-            NetworkTopologyModule.stopServer();
+            // Interrupt remaining threads
+            sensorThread.interrupt();
+            grpcServerThread.interrupt();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } finally {
+            System.out.println("Successfully exited network");
         }
     }
 

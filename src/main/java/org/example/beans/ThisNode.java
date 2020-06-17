@@ -1,11 +1,12 @@
 package org.example.beans;
 
-import java.util.List;
-
 public class ThisNode {
     private Node node;
-    private boolean isExiting;
+    private boolean isExiting = false;
     private static ThisNode instance;
+
+    // dummy object used to have a different lock between node and isExiting
+    private Object isExitingLock = new Object();
 
     private ThisNode() {
         node = new Node();
@@ -28,7 +29,15 @@ public class ThisNode {
         return nodeCopy;
     }
 
-    public synchronized boolean getIsExiting() { return isExiting; }
+    public boolean getIsExiting() {
+        synchronized (isExitingLock) {
+            return isExiting;
+        }
+    }
 
-    public synchronized void setIsExiting(boolean isExiting) { this.isExiting = isExiting; }
+    public void setIsExiting(boolean isExiting) {
+        synchronized (isExitingLock) {
+            this.isExiting = isExiting;
+        }
+    }
 }

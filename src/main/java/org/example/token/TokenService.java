@@ -26,20 +26,22 @@ import java.util.List;
 public class TokenService extends TokenServiceGrpc.TokenServiceImplBase {
     @Override
     public void sendToken(SendTokenRequest request, StreamObserver<SendTokenResponse> responseObserver) {
-        System.out.println("Received token");
-
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        System.out.println("Received token");
+
+        // Get data from received token
         List<MeasurementMessage> measurementList = new ArrayList<MeasurementMessage>(request.getLocalStatisticsList());
         List<String> participantIds = new ArrayList<String>(request.getParticipantIdsList());
 
+        // Launch a new thread to send the token to the next node
         (new Thread(new TokenManaging(measurementList, participantIds))).start();
 
-        // respond to current connection
+        // Respond to previous node
         responseObserver.onNext(SendTokenResponse.newBuilder()
                 .setCode(0)
                 .build()
