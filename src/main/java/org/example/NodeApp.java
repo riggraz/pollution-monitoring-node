@@ -18,10 +18,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class NodeApp extends Thread {
     private Scanner in;
@@ -115,9 +112,27 @@ public class NodeApp extends Thread {
         node.setIp("localhost");
         System.out.println("Node ip: " + node.getIp());
 
-        System.out.print("Insert port number: ");
-        node.setPort(in.nextInt());
-        System.out.println("Node port: " + node.getPort());
+        while (true) {
+            System.out.print("Insert port number: ");
+
+            try {
+                int port = in.nextInt();
+
+
+                if (port < 0 || port > 65535) {
+                    System.err.println("Port number must be between 0 and 65535.");
+                    continue;
+                } else {
+                    node.setPort(port);
+                    System.out.println("Node port: " + node.getPort());
+                    break;
+                }
+            } catch (InputMismatchException e) {
+                System.err.println("Port number entered is invalid. Try again.");
+                in.next();
+                continue;
+            }
+        }
 
         ThisNode.getInstance().setNode(node);
 
