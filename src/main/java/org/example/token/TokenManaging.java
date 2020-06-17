@@ -32,6 +32,7 @@ public class TokenManaging implements Runnable {
     @Override
     public void run() {
         if (participantIds.size() == 0) {
+            if (measurementList.size() == 0) return;
             // all statistics are in the token, so we calc a global statistic
             // and send it to the gateway
             Measurement globalStatistic = calculateGlobalStatistic();
@@ -142,6 +143,8 @@ public class TokenManaging implements Runnable {
 
         while (nextNode == null) {
             if (participantIds.size() == 0) {
+                if (measurementList.size() == 0) return null;
+
                 // there are no more nodes to send the token
                 sendGlobalStatisticToGateway(calculateGlobalStatistic());
                 resetToken();
