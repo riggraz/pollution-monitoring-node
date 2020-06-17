@@ -61,6 +61,12 @@ public class TokenManaging implements Runnable {
 
                 // remove this node id from participant ids
                 participantIds.remove(ThisNode.getInstance().getNode().getId().toString());
+            } else {
+                // if a node is exiting and does not have a local statistic,
+                // it just removes itself from the token participants
+                if (ThisNode.getInstance().getIsExiting()) {
+                    participantIds.remove(ThisNode.getInstance().getNode().getId().toString());
+                }
             }
         }
         forwardToken();
@@ -79,6 +85,50 @@ public class TokenManaging implements Runnable {
     }
 
     private void forwardToken() {
+        Node nextNode = getNextNode();
+        ManagedChannel channel = null;
+
+        while (true) {
+            if (nextNode == null) break;
+
+            channel = ManagedChannelBuilder.forAddress(nextNode.getIp(), nextNode.getPort())
+                    .usePlaintext()
+                    .build();
+
+            TokenServiceGrpc.TokenServiceBlockingStub stub
+                    = TokenServiceGrpc.newBlockingStub(channel);
+
+            // send the token to the next node
+            try {
+                /*// Test when node that should receive token exited
+                try {
+                    System.out.println("I'm going to contact " + nextNode);
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
+
+                SendTokenResponse sendTokenResponse = stub.sendToken(SendTokenRequest
+                        .newBuilder()
+                        .addAllLocalStatistics(measurementList)
+                        .addAllParticipantIds(participantIds)
+                        .build());
+
+                break;
+            } catch (io.grpc.StatusRuntimeException e) {
+                participantIds.remove(nextNode.getId().toString());
+                NodeList.getInstance().deleteNode(nextNode.getId());
+                System.err.println("Cannot send token to node " + nextNode + ", because it exited network.");
+                System.err.println("Trying to contact next node...");
+                nextNode = getNextNode();
+                continue;
+            }
+        }
+
+        if (channel != null) channel.shutdown();
+    }
+
+    private Node getNextNode() {
         String nextNodeId;
         Node nextNode = null;
 
@@ -87,7 +137,7 @@ public class TokenManaging implements Runnable {
                 // there are no more nodes to send the token
                 sendGlobalStatisticToGateway(calculateGlobalStatistic());
                 resetToken();
-                return;
+                return null;
             }
 
             // calculate the next node to send the token to
@@ -107,25 +157,7 @@ public class TokenManaging implements Runnable {
             }
         }
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(nextNode.getIp(), nextNode.getPort())
-                .usePlaintext()
-                .build();
-
-        TokenServiceGrpc.TokenServiceBlockingStub stub
-                = TokenServiceGrpc.newBlockingStub(channel);
-
-        // send the token to the next node
-        try {
-            SendTokenResponse sendTokenResponse = stub.sendToken(SendTokenRequest
-                    .newBuilder()
-                    .addAllLocalStatistics(measurementList)
-                    .addAllParticipantIds(participantIds)
-                    .build());
-        } catch (io.grpc.StatusRuntimeException e) {
-            System.err.println("Cannot send token.");
-        }
-
-        channel.shutdown();
+        return nextNode;
     }
 
     private Measurement calculateGlobalStatistic() {

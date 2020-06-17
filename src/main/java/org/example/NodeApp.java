@@ -46,14 +46,15 @@ public class NodeApp extends Thread {
         // Add node to gateway
         addNodeToGateway();
 
-        /*
+/*
         // Test for concurrent node add
+        // Test for concurrent node add and delete
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        */
+*/
 
         // Communicate to all other nodes that this node has entered the network
         NetworkTopologyModule.communicateAddNode();
@@ -75,7 +76,8 @@ public class NodeApp extends Thread {
 
             ThisNode.getInstance().setIsExiting(true);
 
-            //Thread.sleep(15000);
+            /*// Test for concurrent node delete
+            Thread.sleep(10000);*/
 
             // Communicate to all other nodes that this node is leaving the network
             NetworkTopologyModule.communicateDeleteNode();
