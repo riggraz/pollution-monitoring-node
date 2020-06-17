@@ -27,12 +27,12 @@ public class TokenService extends TokenServiceGrpc.TokenServiceImplBase {
     @Override
     public void sendToken(SendTokenRequest request, StreamObserver<SendTokenResponse> responseObserver) {
         try {
-            Thread.sleep(10000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        System.out.println("Received token");
+        /*System.out.println("Received token");*/
 
         // Get data from received token
         List<MeasurementMessage> measurementList = new ArrayList<MeasurementMessage>(request.getLocalStatisticsList());

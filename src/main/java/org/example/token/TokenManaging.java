@@ -24,8 +24,6 @@ public class TokenManaging implements Runnable {
     private List<MeasurementMessage> measurementList;
     private List<String> participantIds;
 
-    private ManagedChannel channel;
-
     public TokenManaging(List<MeasurementMessage> measurementList, List<String> participantIds) {
         this.measurementList = measurementList;
         this.participantIds = participantIds;
@@ -33,6 +31,16 @@ public class TokenManaging implements Runnable {
 
     @Override
     public void run() {
+        if (participantIds.size() == 0) {
+            // all statistics are in the token, so we calc a global statistic
+            // and send it to the gateway
+            Measurement globalStatistic = calculateGlobalStatistic();
+            sendGlobalStatisticToGateway(globalStatistic);
+
+            // now i need to reset the token
+            resetToken();
+        }
+
         if (participantIds.contains(ThisNode.getInstance().getNode().getId().toString())) {
             List<Measurement> localStatistics = LocalStatisticList.getInstance().getList();
 
@@ -55,41 +63,38 @@ public class TokenManaging implements Runnable {
                 participantIds.remove(ThisNode.getInstance().getNode().getId().toString());
             }
         }
+        forwardToken();
+    }
 
-        if (participantIds.size() == 0) {
-            // all statistics are in the token, so we calc a global statistic
-            // and send it to the gateway
-            Measurement globalStatistic = calculateGlobalStatistic();
-            sendGlobalStatisticToGateway(globalStatistic);
-
-            // now i need to reset the token
-            // new list of participants
-            for (Node n : NodeList.getInstance().getList()) {
-                participantIds.add(n.getId().toString());
-            }
-
-            // empty measurements
-            measurementList.clear();
-
-            forwardToken();
-
-        } else {
-            forwardToken();
+    private void resetToken() {
+        // new list of participants
+        for (Node n : NodeList.getInstance().getList()) {
+            participantIds.add(n.getId().toString());
         }
 
-        channel.shutdown();
+        // empty measurements
+        measurementList.clear();
+
+        forwardToken();
     }
 
     private void forwardToken() {
+        String nextNodeId;
         Node nextNode = null;
 
         while (nextNode == null) {
             if (participantIds.size() == 0) {
+                // there are no more nodes to send the token
                 sendGlobalStatisticToGateway(calculateGlobalStatistic());
+                resetToken();
                 return;
             }
 
-            String nextNodeId = participantIds.get(0);
+            // calculate the next node to send the token to
+            int currentNodeI = participantIds.indexOf(ThisNode.getInstance().getNode().getId().toString());
+            int nextNodeI = (currentNodeI + 1) % participantIds.size();
+            nextNodeId = participantIds.get(nextNodeI);
+
             for (Node node : NodeList.getInstance().getList()) {
                 if (node.getId().toString().equals(nextNodeId)) {
                     nextNode = node;
@@ -98,25 +103,29 @@ public class TokenManaging implements Runnable {
 
             if (nextNode == null) {
                 // the node exited network while it was a participant
-                participantIds.remove(0);
+                participantIds.remove(nextNodeI);
             }
         }
 
-        channel = ManagedChannelBuilder.forAddress(nextNode.getIp(), nextNode.getPort())
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(nextNode.getIp(), nextNode.getPort())
                 .usePlaintext()
                 .build();
-
-        System.out.println(nextNode);
 
         TokenServiceGrpc.TokenServiceBlockingStub stub
                 = TokenServiceGrpc.newBlockingStub(channel);
 
         // send the token to the next node
-        SendTokenResponse sendTokenResponse = stub.sendToken(SendTokenRequest
-                .newBuilder()
-                .addAllLocalStatistics(measurementList)
-                .addAllParticipantIds(participantIds)
-                .build());
+        try {
+            SendTokenResponse sendTokenResponse = stub.sendToken(SendTokenRequest
+                    .newBuilder()
+                    .addAllLocalStatistics(measurementList)
+                    .addAllParticipantIds(participantIds)
+                    .build());
+        } catch (io.grpc.StatusRuntimeException e) {
+            System.err.println("Cannot send token.");
+        }
+
+        channel.shutdown();
     }
 
     private Measurement calculateGlobalStatistic() {
