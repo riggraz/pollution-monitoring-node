@@ -5,13 +5,13 @@ import java.util.Scanner;
 public class InputReaderThread implements Runnable {
     @Override
     public void run() {
-        System.out.println("You can exit the network at any time by typing 0");
+        System.out.println("You can exit the network at any time by typing something and pressing ENTER.");
 
         Scanner in = new Scanner(System.in);
-        int input = 0;
+        String input = null;
 
         do {
-            input = in.nextInt();
-        } while (input != 0);
+            input = in.next();
+        } while (input == null);
     }
 }

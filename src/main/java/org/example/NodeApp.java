@@ -44,9 +44,6 @@ public class NodeApp extends Thread {
         Thread grpcServerThread = new Thread(new GrpcServerThread());
         grpcServerThread.start();
 
-        // If this node is the only one, then it must generate the token
-        if (NodeList.getInstance().getList().size() == 1) TokenModule.generateToken();
-
         /*try {
             Thread.sleep(15000);
         } catch (InterruptedException e) {
@@ -56,13 +53,16 @@ public class NodeApp extends Thread {
         // Communicate to all other nodes that this node has entered the network
         NetworkTopologyModule.communicateAddNode();
 
-        // Run a thread to listen to stdin (used to quit the node)
-        Thread inputReaderThread = new Thread(new InputReaderThread());
-        inputReaderThread.start();
+        // If this node is the only one, then it must generate the token
+        if (NodeList.getInstance().getList().size() == 1) TokenModule.generateToken();
 
         // Run a thread to sense data through simulator
         Thread sensorThread = new Thread(new SensorThread());
         sensorThread.start();
+
+        // Run a thread to listen to stdin (used to quit the node)
+        Thread inputReaderThread = new Thread(new InputReaderThread());
+        inputReaderThread.start();
 
         try {
             // Wait for the input thread to finish, then throw down the node
